@@ -6,17 +6,17 @@ from datetime import date
 class Department:
     """Подразделение"""
 
-    id: int
     name: str
     parent_id: int | None
+    id: int | None = None
 
 
 @dataclass
 class Employee:
     """Сотрудник"""
 
-    id: int
     department_id: int
     full_name: str
     position: str
-    hired_at: date
+    hired_at: date | None
+    id: int | None = None
