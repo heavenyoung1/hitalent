@@ -1,21 +1,36 @@
 from datetime import date
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
 
 # ============ Department ============
 
 class DepartmentCreateRequest(BaseModel):
-    name: str = Field(..., max_length=255, description='Название департамента')
+    name: str = Field(..., min_length=1, max_length=200)
     parent_id: int | None = Field(default=None)
 
-    model_config = ConfigDict(
-        json_schema_extra={
-            'example': {
-                'name': '[DOGE] Department of Government Efficiency',
-                'parent_id': 1,
-            }
-        }
-    )
+    @field_validator('name')
+    @classmethod
+    def strip_name(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError('name не может быть пустым')
+        return v
+
+
+class DepartmentUpdateRequest(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    parent_id: int | None = Field(default=None)
+
+    @field_validator('name')
+    @classmethod
+    def strip_name(cls, v: str | None) -> str | None:
+        if v is not None:
+            v = v.strip()
+            if not v:
+                raise ValueError('name не может быть пустым')
+        return v
+
 
 class DepartmentResponse(BaseModel):
     id: int
@@ -37,23 +52,22 @@ class DepartmentDetailsResponse(BaseModel):
 
 DepartmentDetailsResponse.model_rebuild()
 
+
 # ============ Employee ============
+
 class EmployeeCreateRequest(BaseModel):
-    department_id: int = Field(...)
-    full_name: str = Field(..., max_length=255)
-    position: str = Field(..., max_length=255)
+    full_name: str = Field(..., min_length=1, max_length=200)
+    position: str = Field(..., min_length=1, max_length=200)
     hired_at: date | None = Field(default=None)
 
-    model_config = ConfigDict(
-        json_schema_extra={
-            'example': {
-                'department_id': 1,
-                'full_name': 'Elon Musk',
-                'position': 'CEO',
-                'hired_at': '2025-01-15',
-            }
-        }
-    )
+    @field_validator('full_name', 'position')
+    @classmethod
+    def strip_fields(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError('Поле не может быть пустым')
+        return v
+
 
 class EmployeeResponse(BaseModel):
     id: int
