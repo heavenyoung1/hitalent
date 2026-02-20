@@ -24,6 +24,19 @@ class DepartmentResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+class DepartmentDetailsResponse(BaseModel):
+    id: int
+    name: str
+    parent_id: int | None
+    employees: list['EmployeeResponse'] = []
+    children: list['DepartmentDetailsResponse'] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+DepartmentDetailsResponse.model_rebuild()
+
 # ============ Employee ============
 class EmployeeCreateRequest(BaseModel):
     department_id: int = Field(...)
